@@ -1,68 +1,116 @@
 /* Global Variables */
 
+
 // Create a new date instance dynamically with JS
 let d = new Date();
 let newDate = d.getMonth()+'.'+ d.getDate()+'.'+ d.getFullYear();
 
 
-const url = 'api.openweathermap.org/data/2.5/weather?';
+
+// set up variables for the api url and the api key
+
+const baseUrl = 'http://api.openweathermap.org/data/2.5/weather?zip=';
 const api_key = '&appid=6c026e4de776701948d7cb5688b289c7';
 
-// temp new york, for testing
-
-const zip = 'zip=10110';
 
 
+// get Data from url
+const getData = async (url) => {
+    
+    const res = await fetch(url);
+    
+    try {
 
-// add event listener for button with id generate
-const generate = document.getElementById('generate');
-generate.addEventListener('click', submitText);
+        const data = res.json();
+        return data;
+
+    } catch (error) {
+
+        console.log("error", error);
+
+    }
+};
 
 
-// function to be called by the event listener for the button with id generate
-function submitText(){
+// post data to url/ route using an object
+const postData = async ( url = '', data = {}) => {
 
-    const text = document.getElementById('feelings').value;
+    const response = await fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-type': 'application/json',
+        },
 
-    console.log(text) 
+        body: JSON.stringify(data),
 
-    // // here we simple want to include data from another route
-    // getFakeText('/someFakeText') // returns varable data, see decl. below
+    });
 
-    // .then(function(data){
-    //     console.log(data);
-    //     // add them together in the parantheses and post to route /addSomeData
-    //     postData('/addSomeData', {answer:42, data, text:text})
-    // });
+    try {
 
+        const newData = await response.json();
+        return newData;
+
+    } catch(error) {
+
+        console.log("error", error);
+    
+    }
 };
 
 
 
 
 
+// add event listener for button with id 'generate'
+const generate = document.getElementById('generate');
+generate.addEventListener('click', submit);
 
 
+// function to be called by the event listener for the button with id generate
+function submit(){
+
+    // pull in values form the user inputs on the webpage
+    const text = document.getElementById('feelings').value;
+    const zip = document.getElementById('zip').value;
+
+    // construct the url for the weather data
+    const url = baseUrl + zip + api_key;
+
+    // get the weather data
+    getData(url)
+
+    // chained post request to route on the server
+    .then(function(data){
+
+        postData('/addData', {data, text:text});
+
+        // update user interface with another async call
+        updateUI();
+
+    })
+
+};
 
 
-// const postData = async ( url = '', data = {}) => {
+// async call for the user update
+const updateUI = async () => {
+    
+    const request = await fetch('/addData');
+    
+    try{
 
-//     // await function läuft, programm läuft erst weiter nach erfolgreichem Fetch
-//     const response = await fetch(url, {
-//         method: 'POST',
-//         credentials: 'same-origin',
-//         headers: {
-//             'Content-type': 'application/json',
-//         },
-//         // daten werden in string gewandelt und in den body gepackt
-//         body: JSON.stringify(data),
-//     });
+        const userData = await request.json();
 
-//     // antwort des servers, oder catch
-//     try {
-//         const newData = await response.json();
-//         return newData
-//     } catch(error) {
-//         console.log("error", error);
-//     }
-// }
+        // update the fields from the weather api call and the user input in the holder entry
+        document.getElementById('date').innerHTML = userData.date;
+        document.getElementById('temp').innerHTML = userData.temperature;
+        document.getElementById('content').innerHTML = userData.userResponse;
+        
+    } catch(error){
+
+        console.log("error", error);
+    
+    }
+    
+};

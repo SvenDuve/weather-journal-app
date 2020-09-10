@@ -33,25 +33,24 @@ const server = app.listen(port, () => {console.log(`running on localhost: ${port
 
 // adding Routes
 
+// Route to send data to the app
 app.get('/addData', getData);
 
 function getData(req, res) {
-    console.log('I am working, what do you want')
+
     res.send(projectData);
-    // res.send(data);
+
 }
 
+// Route to receive data from the app and store in projectData
 app.post('/addData', postData);
 
 function postData(req, res) {
 
-    console.log(req.body);
-    projectData.push(req.body);
-
-    // newData.temperature = req.body.temperature;
-    // newData.date = req.body.date;
-    // newData.userResponse = req.body.userResponse;
-
-    // projectData.push(newData);
+    // create keys for the data to be stored
+    projectData.temperature = req.body.data.main.temp;
+    // Here I used the exact date and time from the weather API
+    projectData.date = Date(req.body.dt);
+    projectData.userResponse = req.body.text;
 
 }
