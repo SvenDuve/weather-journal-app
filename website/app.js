@@ -10,7 +10,7 @@ let newDate = d.getMonth()+'.'+ d.getDate()+'.'+ d.getFullYear();
 // set up variables for the api url and the api key
 
 const baseUrl = 'http://api.openweathermap.org/data/2.5/weather?zip=';
-const api_key = '&appid=6c026e4de776701948d7cb5688b289c7';
+const api_key = '<YOUR_API_KEY>&units=imperial';
 
 
 
@@ -64,7 +64,25 @@ const postData = async ( url = '', data = {}) => {
 
 // add event listener for button with id 'generate'
 const generate = document.getElementById('generate');
-generate.addEventListener('click', submit);
+// generate.addEventListener('click', submit);
+generate.addEventListener('click', validateForm);
+
+
+
+function validateForm() {
+    const x = document.getElementById('zip').value;
+
+    if ((x != '') && (x > 9999 && x < 100000)) {
+        submit();
+    }
+    else {
+        window.alert("Please enter a valid US zip code.");
+    }
+
+};
+
+
+
 
 
 // function to be called by the event listener for the button with id generate
